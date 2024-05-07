@@ -29,7 +29,7 @@ export default function Home() {
         </li>
         <li>
           <a
-            href=""
+            href="https://github.com/Mintbase/ref-finance-agent-next"
             target="_blank"
             rel="noreferrer"
           >
