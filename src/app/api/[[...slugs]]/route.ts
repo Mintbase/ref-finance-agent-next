@@ -1,7 +1,10 @@
 import { searchToken } from "@/utils/search-token";
 import { swagger } from '@elysiajs/swagger';
-import { EstimateSwapView, Transaction, estimateSwap, fetchAllPools, ftGetTokenMetadata, init_env, instantSwap } from "@ref-finance/ref-sdk"
+import { EstimateSwapView, Transaction, WRAP_NEAR_CONTRACT_ID, estimateSwap, fetchAllPools, ftGetTokenMetadata, init_env, instantSwap, nearDepositTransaction, nearWithdrawTransaction, percentLess, scientificNotationToString, separateRoutes } from "@ref-finance/ref-sdk"
 import { Elysia } from "elysia";
+
+// @ts-ignore
+import Big from 'big.js';
 
 init_env("mainnet")
 
@@ -48,8 +51,31 @@ const app = new Elysia({ prefix: '/api', aot: false })
             amountIn: quantity,
             swapTodos,
             slippageTolerance: 0.01,
-            AccountId: accountId
+            AccountId: accountId,
+            referralId: "mintbase.near"
         });
+
+        if (tokenIn && tokenInData.id === WRAP_NEAR_CONTRACT_ID) {
+            transactionsRef.splice(-1, 0, nearDepositTransaction(quantity));
+          }
+
+          if (tokenOut && tokenOutData.id === WRAP_NEAR_CONTRACT_ID) {
+            let outEstimate = new Big(0);
+            const routes = separateRoutes(swapTodos, tokenOutData.id);
+      
+            const bigEstimate = routes.reduce((acc, cur) => {
+              const curEstimate = cur[cur.length - 1].estimate;
+              return acc.plus(curEstimate);
+            }, outEstimate);
+      
+            const minAmountOut = percentLess(
+              0.01,
+      
+              scientificNotationToString(bigEstimate.toString())
+            );
+      
+            transactionsRef.push(nearWithdrawTransaction(minAmountOut));
+          }
 
         return transactionsRef;
     })
