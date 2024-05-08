@@ -1,4 +1,6 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Ref Finance Mintbase Wallet Plugin
+
+![Corte de vídeo 2024-05-08 15h (2)](https://github.com/Mintbase/ref-finance-agent-next/assets/5553483/74d91db8-d11d-4e62-9fc9-423ee2c3abc3)
 
 ## Getting Started
 
