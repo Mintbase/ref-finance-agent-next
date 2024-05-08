@@ -1,6 +1,7 @@
 # Ref Finance Mintbase Wallet Plugin
 
-![Corte de vídeo 2024-05-08 15h](https://github.com/Mintbase/ref-finance-agent-next/assets/5553483/f395016b-d46a-4984-ae9b-59916ab6f553)
+![Corte de vídeo 2024-05-08 15h (1)](https://github.com/Mintbase/ref-finance-agent-next/assets/5553483/fc762b33-fb96-44bd-9214-393bc568407b)
+
 
 
 ## Getting Started
