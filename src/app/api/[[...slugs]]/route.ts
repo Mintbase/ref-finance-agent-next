@@ -5,7 +5,7 @@ import { Elysia } from "elysia";
 
 init_env("mainnet")
 
-const app = new Elysia({ prefix: '/api' })
+const app = new Elysia({ prefix: '/api', aot: false })
     .use(swagger())
     .get("/:token", async ({ params: { token } }) => {
         const _tokenIn = await searchToken(token)
@@ -53,7 +53,7 @@ const app = new Elysia({ prefix: '/api' })
         });
 
         return transactionsRef;
-    })
+    }).compile()
 
 
 export const GET = app.handle
