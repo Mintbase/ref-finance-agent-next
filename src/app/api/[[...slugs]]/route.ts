@@ -77,12 +77,7 @@ const app = new Elysia({ prefix: '/api', aot: false })
             transactionsRef.push(nearWithdrawTransaction(minAmountOut));
           }
 
-        return `
-            Ready to generate transaction. Now you can generate transaction.
-
-            Here are the transaction details.
-            ${JSON.stringify(transactionsRef)}
-        `
+        return transactionsRef;
     })
     .compile()
 
