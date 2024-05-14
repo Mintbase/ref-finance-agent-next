@@ -13,7 +13,10 @@ const app = new Elysia({ prefix: '/api', aot: false })
     .get("/:token", async ({ params: { token } }) => {
         const _tokenIn = await searchToken(token)
         const tokenMetadata = await ftGetTokenMetadata(_tokenIn[0].id);
-        return tokenMetadata;
+        return {
+            ...tokenMetadata,
+            icon: ""
+        };
     })
     .get("/swap/:tokenIn/:tokenOut/:quantity", async ({ params: { tokenIn, tokenOut, quantity }, headers }) => {
         const mbMetadata = JSON.parse(headers["mb-metadata"] || "{}")
