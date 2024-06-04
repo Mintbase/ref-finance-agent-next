@@ -46,6 +46,9 @@ const app = new Elysia({ prefix: '/api', aot: false })
             tokenOut: tokenOutData,
             amountIn: quantity,
             simplePools,
+            options: {
+                enableSmartRouting: true
+            }
         });
 
         const transactionsRef: Transaction[] = await instantSwap({
