@@ -1,5 +1,5 @@
 import Fuse, { IFuseOptions } from "fuse.js";
-import { allowlistedTokens, AllowlistedToken } from "@/utils/whitelist-tokens";
+import { allowlistedTokens, AllowlistedToken } from "@/utils/allowlist-tokens";
 
 // Create an array of tokens
 const tokens = Object.values(allowlistedTokens);
