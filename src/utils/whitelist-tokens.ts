@@ -1,3 +1,14 @@
+export type WhitelistedToken = {
+    spec?: string;
+    name: string;
+    symbol: string;
+    icon?: string;
+    reference?: string | null;
+    reference_hash?: string | null;
+    decimals: number;
+    id: string;
+};
+
 export const whitelistedTokens = {
     "wrap.near": {
         "spec": "ft-1.0.0",
