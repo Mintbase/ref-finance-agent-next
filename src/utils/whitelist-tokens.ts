@@ -1,4 +1,4 @@
-export type WhitelistedToken = {
+export type AllowlistedToken = {
     spec?: string;
     name: string;
     symbol: string;
@@ -9,7 +9,7 @@ export type WhitelistedToken = {
     id: string;
 };
 
-export const whitelistedTokens = {
+export const allowlistedTokens = {
     "wrap.near": {
         "spec": "ft-1.0.0",
         "name": "Wrapped NEAR fungible token",
