@@ -1,11 +1,11 @@
 import Fuse, { IFuseOptions } from "fuse.js";
-import { WhitelistedToken, whitelistedTokens } from "@/utils/whitelist-tokens";
+import { allowlistedTokens, AllowlistedToken } from "@/utils/whitelist-tokens";
 
 // Create an array of tokens
-const tokens = Object.values(whitelistedTokens);
+const tokens = Object.values(allowlistedTokens);
 
 // Set up the fuse.js options
-const options: IFuseOptions<WhitelistedToken> = {
+const options: IFuseOptions<AllowlistedToken> = {
   includeScore: true,
   keys: [
     { name: "name", weight: 0.5 },
@@ -19,7 +19,7 @@ const options: IFuseOptions<WhitelistedToken> = {
 // Create a new fuse instance
 const fuse = new Fuse(tokens, options);
 
-export const searchToken = (query: string): WhitelistedToken[] => {
+export const searchToken = (query: string): AllowlistedToken[] => {
   if (query.toLowerCase() === "near") {
     query = "wrap.near"; // Special case for NEAR
   }
