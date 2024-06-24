@@ -24,6 +24,9 @@ dependencies:
     version: 18.0.0(react@18.0.0)
 
 devDependencies:
+  '@types/big.js':
+    specifier: ^6.2.2
+    version: 6.2.2
   '@types/node':
     specifier: ^20
     version: 20.0.0
@@ -1133,7 +1136,6 @@ packages:
 
   /@types/big.js@6.2.2:
     resolution: {integrity: sha512-e2cOW9YlVzFY2iScnGBBkplKsrn2CsObHQ2Hiw4V1sSyiGbgWL8IyqE3zFi1Pt5o1pdAtYkDAIsF3KKUPjdzaA==}
-    dev: false
 
   /@types/bn.js@5.1.5:
     resolution: {integrity: sha512-V46N0zwKRF5Q00AZ6hWtN0T8gGmDUaUzLWQvHFo5yThtVwK/VCenFY3wXVbOvNfajEpsTfQM4IN9k/d6gUVX3A==}
