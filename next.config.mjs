@@ -6,15 +6,6 @@ const nextConfig = {
     }
     return config;
   },
-  async redirects() {
-    return [
-      {
-        source: "/",
-        destination: "/reference",
-        permanent: true,
-      },
-    ];
-  },
   async headers() {
     return [
       {
