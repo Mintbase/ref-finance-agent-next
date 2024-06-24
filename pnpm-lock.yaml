@@ -7,6 +7,9 @@ dependencies:
   '@scalar/nextjs-api-reference':
     specifier: ^0.4.14
     version: 0.4.14(postcss@8.0.0)(react-dom@18.0.0)(tailwindcss@3.4.1)(typescript@5.0.2)
+  big.js:
+    specifier: ^6.2.1
+    version: 6.2.1
   fuse.js:
     specifier: ^7.0.0
     version: 7.0.0

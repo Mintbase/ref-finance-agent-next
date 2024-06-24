@@ -6,7 +6,7 @@ const nextConfig = {
     }
     return config;
   },
-  async redirect() {
+  async redirects() {
     return [
       {
         source: "/",
