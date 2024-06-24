@@ -1,139 +1,226 @@
 {
-    "openapi": "3.0.0",
-    "info": {
-      "title": "Ref Finance API",
-      "description": "API for interacting with Ref Finance operations including token metadata retrieval and token swaps.",
-      "version": "1.0.0"
-    },
-    "servers": [
-      {
-        "url": "https://ref-finance-agent-next.vercel.app"
-      }
-    ],
-    "x-mb": {
-      "account-id": "mintbase.near"
-    },
-    "paths": {
-      "/api/{token}": {
-        "get": {
-          "description": "Fetch metadata for a specific token.",
-          "operationId": "getTokenMetadata",
-          "parameters": [
-            {
-              "in": "path",
-              "name": "token",
-              "required": true,
-              "schema": {
-                "type": "string"
-              },
-              "description": "The token identifier for which metadata is being requested."
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Token metadata retrieved successfully.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "name": {
-                        "type": "string"
-                      },
-                      "symbol": {
-                        "type": "string"
-                      },
-                      "decimals": {
-                        "type": "integer"
-                      },
-                      "id": {
-                        "type": "string"
-                      },
-                      "spec": {
-                        "type": "string"
-                      },
-                      "icon": {
-                        "type": "string"
-                      }
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Ref Finance Agent API",
+    "description": "API for interacting with Ref Finance operations such as swapping FT tokens, fetching token data and prices.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://ref-finance-agent-next.vercel.app"
+    }
+  ],
+  "x-mb": {
+    "account-id": "mintbase.near"
+  },
+  "paths": {
+    "/api/token/{token}": {
+      "get": {
+        "description": "Fetch metadata for a token by name or identifier.",
+        "operationId": "getTokenMetadata",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The token identifier for which metadata is being requested."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Token metadata retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
                     },
-                    "required": [
-                      "name",
-                      "symbol",
-                      "decimals",
-                      "id",
-                      "spec",
-                      "icon"
-                    ]
-                  }
+                    "symbol": {
+                      "type": "string"
+                    },
+                    "decimals": {
+                      "type": "integer"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "spec": {
+                      "type": "string"
+                    },
+                    "icon": {
+                      "type": "string",
+                      "format": "data-url",
+                      "description": "Base64 encoded image data for the token icon."
+                    }
+                  },
+                  "required": ["name", "symbol", "decimals", "id", "spec", "icon"]
                 }
               }
             }
           }
         }
-      },
-      "/api/swap/{tokenIn}/{tokenOut}/{quantity}": {
-        "get": {
-          "description": "Estimate swap details between two tokens.",
-          "operationId": "estimateTokenSwap",
-          "parameters": [
-            {
-              "in": "path",
-              "name": "tokenIn",
-              "required": true,
-              "schema": {
-                "type": "string"
-              },
-              "description": "The identifier for the input token in the swap."
+      }
+    },
+    "/api/swap/{tokenIn}/{tokenOut}/{quantity}": {
+      "get": {
+        "summary": "Get quote and transaction data for a token swap",
+        "description": "Live quote for a token swap using Ref Finance. Returns an array of transactions necessary to execute the swap, including any required preliminary actions like storage deposits.",
+        "operationId": "getSwapTransactions",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tokenIn",
+            "required": true,
+            "schema": {
+              "type": "string"
             },
-            {
-              "in": "path",
-              "name": "tokenOut",
-              "required": true,
-              "schema": {
-                "type": "string"
-              },
-              "description": "The identifier for the output token in the swap."
+            "description": "The identifier for the input token in the swap."
+          },
+          {
+            "in": "path",
+            "name": "tokenOut",
+            "required": true,
+            "schema": {
+              "type": "string"
             },
-            {
-              "in": "path",
-              "name": "quantity",
-              "required": true,
-              "schema": {
-                "type": "string"
-              },
-              "description": "The amount of the input token to swap."
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Swap estimate retrieved successfully.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "priceImpact": {
-                          "type": "string"
-                        },
-                        "route": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
-                        },
-                        "estimatedAmountOut": {
-                          "type": "string"
+            "description": "The identifier for the output token in the swap."
+          },
+          {
+            "in": "path",
+            "name": "quantity",
+            "required": true,
+            "schema": {
+              "type": "number"
+            },
+            "description": "The amount of the input token to swap, in the token's smallest unit."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "An array of transactions necessary to execute the swap.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "receiverId": {
+                        "type": "string",
+                        "description": "The account ID of the contract that will receive the transaction."
+                      },
+                      "functionCalls": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "methodName": {
+                              "type": "string",
+                              "description": "The name of the method to be called on the contract."
+                            },
+                            "args": {
+                              "type": "object",
+                              "description": "Arguments for the function call.",
+                              "properties": {
+                                "registration_only": {
+                                  "type": "boolean"
+                                },
+                                "account_id": {
+                                  "type": "string"
+                                },
+                                "receiver_id": {
+                                  "type": "string"
+                                },
+                                "amount": {
+                                  "type": "string"
+                                },
+                                "msg": {
+                                  "type": "string",
+                                  "description": "A JSON string containing swap actions and parameters.  Shows minimum amount of tokens to receive."
+                                }
+                              },
+                              "additionalProperties": true
+                            },
+                            "gas": {
+                              "type": "string",
+                              "description": "The amount of gas to attach to the transaction, in yoctoNEAR."
+                            },
+                            "amount": {
+                              "type": "string",
+                              "description": "The amount of NEAR tokens to attach to the transaction, in yoctoNEAR."
+                            }
+                          },
+                          "required": ["methodName", "args", "gas", "amount"]
                         }
                       }
+                    },
+                    "required": ["receiverId", "functionCalls"]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request. Invalid input parameters."
+          },
+          "404": {
+            "description": "One or both tokens not found."
+          },
+          "500": {
+            "description": "Internal server error or issue with external services."
+          }
+        }
+      }
+    },
+    "/api/price/{token}": {
+      "get": {
+        "summary": "Get the price of a token",
+        "description": "Fetch the current price of a specified token using the Ref Finance API.",
+        "operationId": "getTokenPrice",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The token identifier or symbol for which the price is being requested."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved token price",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "price": {
+                      "type": "string",
+                      "description": "The current price of the token in USD"
                     }
                   }
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad request. Invalid token identifier."
+          },
+          "404": {
+            "description": "Token not found or price unavailable."
+          },
+          "500": {
+            "description": "Internal server error or issue with external services."
           }
         }
       }
     }
   }
+}
