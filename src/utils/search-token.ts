@@ -1,10 +1,7 @@
-import Fuse, { IFuseOptions } from "fuse.js";
-import { allowlistedTokens, AllowlistedToken } from "@/utils/allowlist-tokens";
+import Fuse, { type IFuseOptions } from "fuse.js";
 
-// Create an array of tokens
-const tokens = Object.values(allowlistedTokens);
+import { ALLOWLISTED_TOKENS, type AllowlistedToken } from "@/utils/allowlist-tokens";
 
-// Set up the fuse.js options
 const options: IFuseOptions<AllowlistedToken> = {
   includeScore: true,
   keys: [
@@ -13,19 +10,20 @@ const options: IFuseOptions<AllowlistedToken> = {
     { name: "id", weight: 0.2 },
   ],
   isCaseSensitive: false,
-  threshold: 0.3, // Adjust the threshold for the desired level of fuzziness
+  ignoreLocation: false,
+  distance: 10,
+  threshold: 0.1,
 };
 
-// Create a new fuse instance
+const tokens = Object.values(ALLOWLISTED_TOKENS);
 const fuse = new Fuse(tokens, options);
 
 export const searchToken = (query: string): AllowlistedToken[] => {
   if (query.toLowerCase() === "near") {
-    query = "wrap.near"; // Special case for NEAR
+    query = "wrap.near"; // always convert NEAR -> wNEAR
   }
-  // Search the tokens with the query
+
   const result = fuse.search(query);
 
-  // Map the result to only return the tokens
   return result.map((res) => res.item);
 };
