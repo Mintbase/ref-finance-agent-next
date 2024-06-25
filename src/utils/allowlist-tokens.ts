@@ -5,11 +5,12 @@ export type AllowlistedToken = {
     icon?: string;
     reference?: string | null;
     reference_hash?: string | null;
+    tax_rate?: number;
     decimals: number;
     id: string;
 };
 
-export const allowlistedTokens = {
+export const allowlistedTokens: Record<string, AllowlistedToken> = {
     "wrap.near": {
         "spec": "ft-1.0.0",
         "name": "Wrapped NEAR fungible token",
