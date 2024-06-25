@@ -2,6 +2,7 @@ import { searchToken } from "@/utils/search-token";
 import { swagger } from '@elysiajs/swagger';
 import { EstimateSwapView, Transaction, WRAP_NEAR_CONTRACT_ID, estimateSwap, fetchAllPools, ftGetTokenMetadata, init_env, instantSwap, nearDepositTransaction, nearWithdrawTransaction, percentLess, scientificNotationToString, separateRoutes } from "@ref-finance/ref-sdk"
 import { Elysia } from "elysia";
+import Big from 'big.js';
 
 init_env("mainnet")
 
@@ -75,12 +76,12 @@ const app = new Elysia({ prefix: '/api', aot: false })
           }
 
           if (tokenOut && tokenOutData.id === WRAP_NEAR_CONTRACT_ID) {
-            const outEstimate = 0n;
+            let outEstimate = new Big(0);
             const routes = separateRoutes(swapTodos, tokenOutData.id);
       
             const bigEstimate = routes.reduce((acc, cur) => {
-              const curEstimate = BigInt(cur[cur.length - 1].estimate);
-              return acc + curEstimate;
+              const curEstimate = cur[cur.length - 1].estimate;
+              return acc.plus(curEstimate);
             }, outEstimate);
       
             const minAmountOut = percentLess(
