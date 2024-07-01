@@ -2,7 +2,7 @@
 
 ![Corte de vídeo 2024-05-08 15h (2)](https://github.com/Mintbase/ref-finance-agent-next/assets/5553483/74d91db8-d11d-4e62-9fc9-423ee2c3abc3)
 [![Demo](https://img.shields.io/badge/Demo-Visit%20Demo-brightgreen)](https://ref-finance-agent-next.vercel.app/)
-[![Deploy](https://img.shields.io/badge/Deploy-on%20Vercel-blue)](https://vercel.com/new/clone?repository-url=https://github.com/Mintbase/ref-finance-agent-next)
+[![Deploy](https://img.shields.io/badge/Deploy-on%20Vercel-blue)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FMintbase%2Fref-finance-agent-next)
 
 ## Getting Started
 
