@@ -4,6 +4,12 @@
 [![Demo](https://img.shields.io/badge/Demo-Visit%20Demo-brightgreen)](https://ref-finance-agent-next.vercel.app/)
 [![Deploy](https://img.shields.io/badge/Deploy-on%20Vercel-blue)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FMintbase%2Fref-finance-agent-next)
 
+
+**Tooling:**
+
+[![Use Case](https://img.shields.io/badge/Use%20Case-AI-blue)](#)
+[![Framework](https://img.shields.io/badge/Framework-Next.js%2014-blue)](#)
+
 ## Getting Started
 
 First, run the development server:
