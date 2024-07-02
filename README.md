@@ -5,6 +5,13 @@
 [![Deploy](https://img.shields.io/badge/Deploy-on%20Vercel-blue)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FMintbase%2Fref-finance-agent-next)
 
 
+[![Watch the video](https://i.sstatic.net/Vp2cE.png)]([https://youtu.be/vt5fpE0bzSY](https://github.com/Mintbase/ref-finance-agent-next/assets/838839/3291eaf9-aa79-4c95-8c5f-673a6d72dc96))
+
+
+
+
+
+
 **Tooling:**
 
 [![Use Case](https://img.shields.io/badge/Use%20Case-AI-blue)](#)
