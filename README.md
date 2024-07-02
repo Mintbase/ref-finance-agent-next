@@ -18,7 +18,7 @@ https://github.com/Mintbase/ref-finance-agent-next/assets/838839/3291eaf9-aa79-4
 [![Framework](https://img.shields.io/badge/Framework-Next.js%2014-blue)](#)
 
 ## Getting Started
-
+[Docs to integrate](https://docs.mintbase.xyz/ai/assistant-plugins)  
 First, run the development server:
 
 ```bash
