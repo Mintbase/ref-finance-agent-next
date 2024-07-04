@@ -2,8 +2,6 @@ import { searchToken } from "@/utils/search-token";
 import { swagger } from '@elysiajs/swagger';
 import { EstimateSwapView, Transaction, WRAP_NEAR_CONTRACT_ID, estimateSwap, fetchAllPools, ftGetTokenMetadata, init_env, instantSwap, nearDepositTransaction, nearWithdrawTransaction, percentLess, scientificNotationToString, separateRoutes } from "@ref-finance/ref-sdk"
 import { Elysia } from "elysia";
-
-// @ts-ignore
 import Big from 'big.js';
 
 init_env("mainnet")
@@ -24,8 +22,10 @@ const app = new Elysia({ prefix: '/api', aot: false })
 
         const { simplePools } = await fetchAllPools();
 
-        const _tokenIn = await searchToken(tokenIn)
-        const _tokenOut = await searchToken(tokenOut)
+        const [_tokenIn, _tokenOut] = [
+            searchToken(tokenIn),
+            searchToken(tokenOut),
+          ];
 
         if (_tokenIn.length === 0 || _tokenOut.length === 0) {
             return "Token not found"
@@ -38,18 +38,28 @@ const app = new Elysia({ prefix: '/api', aot: false })
             return "Token not found"
         }
 
-        const tokenInData = await ftGetTokenMetadata(tokenInId);
-        const tokenOutData = await ftGetTokenMetadata(tokenOutId);
+        const [tokenInData, tokenOutData] = await Promise.all([
+            ftGetTokenMetadata(tokenInId),
+            ftGetTokenMetadata(tokenOutId),
+          ]);
 
-        const swapTodos: EstimateSwapView[] = await estimateSwap({
+        const refEstimateSwap = (enableSmartRouting: boolean) => {
+        return estimateSwap({
             tokenIn: tokenInData,
             tokenOut: tokenOutData,
             amountIn: quantity,
             simplePools,
             options: {
-                enableSmartRouting: true
-            }
+            enableSmartRouting,
+            },
         });
+        };
+
+        const swapTodos: EstimateSwapView[] = await refEstimateSwap(true).catch(
+        () => {
+            return refEstimateSwap(false); // retry without smartRouting on failure i.e. usdc.e <-> usdc swaps
+        }
+        );
 
         const transactionsRef: Transaction[] = await instantSwap({
             tokenIn: tokenInData,
