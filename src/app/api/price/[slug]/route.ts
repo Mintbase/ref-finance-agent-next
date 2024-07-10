@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { searchToken } from "@/utils/search-token";
 
+export const maxDuration = 60 // 60 seconds
+
 export const GET = async (req: NextRequest, { params }: { params: { slug: string } }) => {
   const { slug: tokenQuery } = params;
   const tokenMatch = searchToken(tokenQuery)[0];

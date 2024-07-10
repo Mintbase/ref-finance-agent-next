@@ -186,6 +186,51 @@
           }
         }
       }
+    },
+    "/api/price/{token}": {
+      "get": {
+        "summary": "Get the price of a token",
+        "description": "Fetch the current price of a specified token using the Ref Finance API.",
+        "operationId": "getTokenPrice",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The token identifier or symbol for which the price is being requested."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved token price",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "price": {
+                      "type": "string",
+                      "description": "The current price of the token in USD"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request. Invalid token identifier."
+          },
+          "404": {
+            "description": "Token not found or price unavailable."
+          },
+          "500": {
+            "description": "Internal server error or issue with external services."
+          }
+        }
+      }
     }
   }
 }

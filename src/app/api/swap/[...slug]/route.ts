@@ -20,6 +20,8 @@ import Big from "big.js";
 
 import { searchToken } from "@/utils/search-token";
 
+export const maxDuration = 60; // 60 seconds
+
 export const GET = async (req: NextRequest, { params }: { params: { slug: string[] } }) => {
   const [tokenIn, tokenOut, quantity] = params.slug;
 
