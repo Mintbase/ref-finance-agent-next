@@ -1,8 +1,8 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "Ref Finance Agent API",
-    "description": "API for interacting with Ref Finance operations such as swapping FT tokens, fetching token data and prices.",
+    "title": "Ref Finance API",
+    "description": "API for interacting with Ref Finance operations including token metadata retrieval and token swaps.",
     "version": "1.0.0"
   },
   "servers": [
@@ -11,7 +11,17 @@
     }
   ],
   "x-mb": {
-    "account-id": "mintbase.near"
+    "account-id": "mintbase.near",
+    "assistant": {
+      "name": "Ref Finance Assistant",
+      "description": "Assistant for using the Ref Finance API to swap tokens and retrieve token metadata.",
+      "instructions": "You are an assistant that helps users interact with Ref Finance. You can generate swap transactions and retrieve token metadata. Generated swap transactions can be presented to the user for signing and broadcasting to the network.",
+      "tools": [
+        {
+          "type": "generate-transaction"
+        }
+      ]
+    }
   },
   "paths": {
     "/api/token/{token}": {
@@ -68,8 +78,8 @@
     },
     "/api/swap/{tokenIn}/{tokenOut}/{quantity}": {
       "get": {
-        "summary": "Get quote and transaction data for a token swap",
-        "description": "Live quote for a token swap using Ref Finance. Returns an array of transactions necessary to execute the swap, including any required preliminary actions like storage deposits.",
+        "summary": "Generate swap transactions.",
+        "description": "An array of transaction objects necessary to execute the swap, including any required preliminary actions like storage deposits.",
         "operationId": "getSwapTransactions",
         "parameters": [
           {
@@ -79,7 +89,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "The identifier for the input token in the swap."
+            "description": "The name, symbol, or identifier for the input token in the swap."
           },
           {
             "in": "path",
@@ -88,7 +98,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "The identifier for the output token in the swap."
+            "description": "The name, symbol, or identifier for the output token in the swap."
           },
           {
             "in": "path",
@@ -102,7 +112,7 @@
         ],
         "responses": {
           "200": {
-            "description": "An array of transactions necessary to execute the swap.",
+            "description": "Swap transactions generated successfully.",
             "content": {
               "application/json": {
                 "schema": {
@@ -170,51 +180,6 @@
           },
           "404": {
             "description": "One or both tokens not found."
-          },
-          "500": {
-            "description": "Internal server error or issue with external services."
-          }
-        }
-      }
-    },
-    "/api/price/{token}": {
-      "get": {
-        "summary": "Get the price of a token",
-        "description": "Fetch the current price of a specified token using the Ref Finance API.",
-        "operationId": "getTokenPrice",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "token",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "The token identifier or symbol for which the price is being requested."
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved token price",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "price": {
-                      "type": "string",
-                      "description": "The current price of the token in USD"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad request. Invalid token identifier."
-          },
-          "404": {
-            "description": "Token not found or price unavailable."
           },
           "500": {
             "description": "Internal server error or issue with external services."
