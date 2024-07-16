@@ -2,7 +2,6 @@
 <img src="https://i.imgur.com/xUkwJiK.png" alt="cover_image"  width="0" />
 
 Ref Finance Agent is a Next.js 14 template for creating decentralized finance (DeFi) applications. 
-Built by Bitte, it facilitates the development of AI-powered DeFi swap agents. The template supports creating, managing, and deploying DeFi swap functionalities.
 
 [![Demo](https://img.shields.io/badge/Demo-Visit%20Demo-brightgreen)](https://ref-finance-agent-next.vercel.app/)
 [![Deploy](https://img.shields.io/badge/Deploy-on%20Vercel-blue)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FMintbase%2Fref-finance-agent-next)
