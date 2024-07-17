@@ -22,7 +22,7 @@ Ref Finance Agent facilitates the development of AI-powered DeFi swap agents. Th
 
 #### API Base URL
 
-https://ref-finance-agent-next.vercel.app
+https://ref-finance-agent.vercel.app
 
 #### Endpoints
 
