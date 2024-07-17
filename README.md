@@ -1,5 +1,6 @@
-# DeFi Swap AI Assistant 
-<img src="https://i.imgur.com/xUkwJiK.png" alt="cover_image"  width="0" />
+# Ref Finance DeFi Swap Agent
+
+<img src="https://github.com/user-attachments/assets/aa54bac4-30ef-49bb-bac7-732ff561bd95" alt="cover_image" width="0"/>
 
 Ref Finance Agent is a template for creating a Bitte.ai Plugin for facilitating DeFi swaps using Ref Finance. Built using Next.js 14 + Elysia.
 
@@ -16,38 +17,37 @@ Ref Finance Agent is a template for creating a Bitte.ai Plugin for facilitating 
 Ref Finance Agent facilitates the development of AI-powered DeFi swap agents. The template supports creating, managing, and deploying DeFi swap functionalities.
 [Build your own agent](https://docs.mintbase.xyz/ai/assistant-plugins)
 
+#### API Base URL
 
-## Demo
-https://github.com/Mintbase/ref-finance-agent-next/assets/838839/3291eaf9-aa79-4c95-8c5f-673a6d72dc96
+https://ref-finance-agent.vercel.app
+
+#### Endpoints
+
+- Token Metadata `GET` `/api/token/{token}`
+
+- Swap Transactions `GET` `/api/swap/{tokenIn}/{tokenOut}/{quantity}`
+
+#### Usage
+Make LLM requests to the endpoints above. Refer to the full API documentation for detailed parameter and response information.
+
 
 ## Getting Started
 [Docs to integrate](https://docs.mintbase.xyz/ai/assistant-plugins)  
-First, run the development server:
+
+### Installation
+
+Set `NEAR_ENV="mainnet"` in your `.env.local` file.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+# install dependencies
+pnpm i
+
+# start the development server
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+## Demo
+https://github.com/Mintbase/ref-finance-agent-next/assets/838839/3291eaf9-aa79-4c95-8c5f-673a6d72dc96
 
 ## Deploy on Vercel
 
@@ -55,5 +55,4 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
 
-<img src="https://global.discourse-cdn.com/standard17/uploads/ref_finance/original/1X/64017832ba00463abe25fb22ff922d59a244792f.png" alt="detail_image" width="0" />
-
+<img src="https://github.com/user-attachments/assets/1d23fa17-7965-4cf5-bb3f-d0ad2621d65a" alt="detail_image" width="0"/>

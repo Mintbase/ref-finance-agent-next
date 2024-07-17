@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "https://ref-finance-agent-next.vercel.app"
+      "url": "https://ref-finance-agent.vercel.app"
     }
   ],
   "x-mb": {
@@ -26,7 +26,7 @@
   "paths": {
     "/api/{token}": {
       "get": {
-        "description": "Fetch metadata for a specific token.",
+        "description": "Fetch metadata for a specific token using fuzzy search by name, symbol, or identifier.",
         "operationId": "getTokenMetadata",
         "parameters": [
           {
@@ -36,7 +36,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "The token identifier for which metadata is being requested."
+            "description": "The name, symbol, or identifier of the token to search for and retrieve metadata."
           }
         ],
         "responses": {
@@ -63,7 +63,9 @@
                       "type": "string"
                     },
                     "icon": {
-                      "type": "string"
+                      "type": "string",
+                      "format": "data-url",
+                      "description": "Base64 encoded image data for the token icon."
                     }
                   },
                   "required": ["name", "symbol", "decimals", "id", "spec", "icon"]
@@ -76,8 +78,9 @@
     },
     "/api/swap/{tokenIn}/{tokenOut}/{quantity}": {
       "get": {
-        "description": "Estimate swap details between two tokens.",
-        "operationId": "estimateTokenSwap",
+        "summary": "Get swap transactions",
+        "description": "An array of transaction objects necessary to execute the swap, including any required preliminary actions like storage deposits.",
+        "operationId": "getSwapTransactions",
         "parameters": [
           {
             "in": "path",
@@ -86,7 +89,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "The identifier for the input token in the swap."
+            "description": "The name, symbol, or identifier of the token to input in the swap."
           },
           {
             "in": "path",
@@ -95,7 +98,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "The identifier for the output token in the swap."
+            "description": "The name, symbol, or identifier of the token to output in the swap."
           },
           {
             "in": "path",
@@ -109,7 +112,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Swap estimate retrieved successfully.",
+            "description": "Swap transactions generated successfully.",
             "content": {
               "application/json": {
                 "schema": {
@@ -117,19 +120,56 @@
                   "items": {
                     "type": "object",
                     "properties": {
-                      "priceImpact": {
-                        "type": "string"
+                      "receiverId": {
+                        "type": "string",
+                        "description": "The account ID of the contract that will receive the transaction."
                       },
-                      "route": {
+                      "functionCalls": {
                         "type": "array",
                         "items": {
-                          "type": "string"
+                          "type": "object",
+                          "properties": {
+                            "methodName": {
+                              "type": "string",
+                              "description": "The name of the method to be called on the contract."
+                            },
+                            "args": {
+                              "type": "object",
+                              "description": "Arguments for the function call.",
+                              "properties": {
+                                "registration_only": {
+                                  "type": "boolean"
+                                },
+                                "account_id": {
+                                  "type": "string"
+                                },
+                                "receiver_id": {
+                                  "type": "string"
+                                },
+                                "amount": {
+                                  "type": "string"
+                                },
+                                "msg": {
+                                  "type": "string",
+                                  "description": "A JSON string containing swap actions and parameters.  Shows minimum amount of tokens to receive."
+                                }
+                              },
+                              "additionalProperties": true
+                            },
+                            "gas": {
+                              "type": "string",
+                              "description": "The amount of gas to attach to the transaction, in yoctoNEAR."
+                            },
+                            "amount": {
+                              "type": "string",
+                              "description": "The amount of NEAR tokens to attach to the transaction, in yoctoNEAR."
+                            }
+                          },
+                          "required": ["methodName", "args", "gas", "amount"]
                         }
-                      },
-                      "estimatedAmountOut": {
-                        "type": "string"
                       }
-                    }
+                    },
+                    "required": ["receiverId", "functionCalls"]
                   }
                 }
               }

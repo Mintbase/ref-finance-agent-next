@@ -1,102 +1,127 @@
-import { searchToken } from "@/utils/search-token";
-import { swagger } from '@elysiajs/swagger';
-import { EstimateSwapView, Transaction, WRAP_NEAR_CONTRACT_ID, estimateSwap, fetchAllPools, ftGetTokenMetadata, init_env, instantSwap, nearDepositTransaction, nearWithdrawTransaction, percentLess, scientificNotationToString, separateRoutes } from "@ref-finance/ref-sdk"
+import { swagger } from "@elysiajs/swagger";
+import {
+  EstimateSwapView,
+  Transaction,
+  WRAP_NEAR_CONTRACT_ID,
+  estimateSwap,
+  fetchAllPools,
+  ftGetTokenMetadata,
+  getExpectedOutputFromSwapTodos,
+  getStablePools,
+  instantSwap,
+  nearDepositTransaction,
+  nearWithdrawTransaction,
+  percentLess,
+  scientificNotationToString,
+  separateRoutes,
+} from "@ref-finance/ref-sdk";
+import Big from "big.js";
 import { Elysia } from "elysia";
-import Big from 'big.js';
 
-init_env("mainnet")
+import { searchToken } from "@/utils/search-token";
 
-const app = new Elysia({ prefix: '/api', aot: false })
-    .use(swagger())
-    .get("/:token", async ({ params: { token } }) => {
-        const _tokenIn = await searchToken(token)
-        const tokenMetadata = await ftGetTokenMetadata(_tokenIn[0].id);
-        return {
-            ...tokenMetadata,
-            icon: ""
-        };
-    })
-    .get("/swap/:tokenIn/:tokenOut/:quantity", async ({ params: { tokenIn, tokenOut, quantity }, headers }) => {
-        const mbMetadata = JSON.parse(headers["mb-metadata"] || "{}")
-        const accountId = mbMetadata?.accountData?.accountId || "near"
+const app = new Elysia({ prefix: "/api", aot: false })
+  .use(swagger())
+  .get("/:token", async ({ params: { token } }) => {
+    const tokenMatch = searchToken(token)[0];
+    if (!tokenMatch) {
+      return {
+        error: `Token ${token} not found`,
+      };
+    }
+    const tokenMetadata = await ftGetTokenMetadata(tokenMatch.id);
+    if (!tokenMetadata) {
+      return {
+        error: `Metadata for token ${token} not found`,
+      };
+    }
 
-        const { simplePools } = await fetchAllPools();
+    return {
+      ...tokenMetadata,
+      icon: "",
+    };
+  })
+  .get("/swap/:tokenIn/:tokenOut/:quantity", async ({ params: { tokenIn, tokenOut, quantity }, headers }) => {
+    const mbMetadata = JSON.parse(headers["mb-metadata"] || "{}");
+    const accountId = mbMetadata?.accountData?.accountId || "near";
 
-        const [_tokenIn, _tokenOut] = [
-            searchToken(tokenIn),
-            searchToken(tokenOut),
-          ];
+    const { ratedPools, unRatedPools, simplePools } = await fetchAllPools();
 
-        if (_tokenIn.length === 0 || _tokenOut.length === 0) {
-            return "Token not found"
-        }
+    const stablePools = unRatedPools.concat(ratedPools);
 
-        const tokenInId = _tokenIn[0]?.id || undefined
-        const tokenOutId = _tokenOut[0]?.id || undefined
+    const stablePoolsDetail = await getStablePools(stablePools);
 
-        if (!tokenInId || !tokenOutId) {
-            return "Token not found"
-        }
+    const tokenInMatch = searchToken(tokenIn)[0];
+    const tokenOutMatch = searchToken(tokenOut)[0];
 
-        const [tokenInData, tokenOutData] = await Promise.all([
-            ftGetTokenMetadata(tokenInId),
-            ftGetTokenMetadata(tokenOutId),
-          ]);
+    if (!tokenInMatch || !tokenOutMatch) {
+      return {
+        error: `Unable to find token(s) tokenInMatch: ${tokenInMatch?.name} tokenOutMatch: ${tokenOutMatch?.name}`,
+      };
+    }
 
-        const refEstimateSwap = (enableSmartRouting: boolean) => {
-        return estimateSwap({
-            tokenIn: tokenInData,
-            tokenOut: tokenOutData,
-            amountIn: quantity,
-            simplePools,
-            options: {
-            enableSmartRouting,
-            },
-        });
-        };
+    const [tokenInData, tokenOutData] = await Promise.all([
+      ftGetTokenMetadata(tokenInMatch.id),
+      ftGetTokenMetadata(tokenOutMatch.id),
+    ]);
 
-        const swapTodos: EstimateSwapView[] = await refEstimateSwap(true).catch(
-        () => {
-            return refEstimateSwap(false); // retry without smartRouting on failure i.e. usdc.e <-> usdc swaps
-        }
-        );
+    if (tokenInData.id === tokenOutData.id) {
+      if (tokenInData.id === WRAP_NEAR_CONTRACT_ID) {
+        return { error: "This endpoint does not support wrapping / unwrap NEAR directly" };
+      }
+      return { error: "TokenIn and TokenOut cannot be the same" };
+    }
 
-        const transactionsRef: Transaction[] = await instantSwap({
-            tokenIn: tokenInData,
-            tokenOut: tokenOutData,
-            amountIn: quantity,
-            swapTodos,
-            slippageTolerance: 0.01,
-            AccountId: accountId,
-            referralId: "mintbase.near"
-        });
+    const refEstimateSwap = (enableSmartRouting: boolean) => {
+      return estimateSwap({
+        tokenIn: tokenInData,
+        tokenOut: tokenOutData,
+        amountIn: quantity,
+        simplePools,
+        options: {
+          enableSmartRouting,
+          stablePools,
+          stablePoolsDetail,
+        },
+      });
+    };
 
-        if (tokenIn && tokenInData.id === WRAP_NEAR_CONTRACT_ID) {
-            transactionsRef.splice(-1, 0, nearDepositTransaction(quantity));
-          }
+    const swapTodos: EstimateSwapView[] = await refEstimateSwap(true).catch(() => {
+      return refEstimateSwap(false); // fallback to non-smart routing if unsupported
+    });
 
-          if (tokenOut && tokenOutData.id === WRAP_NEAR_CONTRACT_ID) {
-            let outEstimate = new Big(0);
-            const routes = separateRoutes(swapTodos, tokenOutData.id);
-      
-            const bigEstimate = routes.reduce((acc, cur) => {
-              const curEstimate = cur[cur.length - 1].estimate;
-              return acc.plus(curEstimate);
-            }, outEstimate);
-      
-            const minAmountOut = percentLess(
-              0.01,
-      
-              scientificNotationToString(bigEstimate.toString())
-            );
-      
-            transactionsRef.push(nearWithdrawTransaction(minAmountOut));
-          }
+    const transactionsRef: Transaction[] = await instantSwap({
+      tokenIn: tokenInData,
+      tokenOut: tokenOutData,
+      amountIn: quantity,
+      swapTodos,
+      slippageTolerance: 0.01,
+      AccountId: accountId,
+      referralId: "mintbase.near",
+    });
 
-        return transactionsRef;
-    })
-    .compile()
+    if (tokenInData.id === WRAP_NEAR_CONTRACT_ID) {
+      transactionsRef.splice(-1, 0, nearDepositTransaction(quantity));
+    }
 
+    if (tokenOutData.id === WRAP_NEAR_CONTRACT_ID) {
+      const outEstimate = getExpectedOutputFromSwapTodos(swapTodos, tokenOutData.id);
 
-export const GET = app.handle
-export const POST = app.handle
+      const routes = separateRoutes(swapTodos, tokenOutData.id);
+
+      const bigEstimate = routes.reduce((acc, cur) => {
+        const curEstimate = Big(cur[cur.length - 1].estimate);
+        return acc.add(curEstimate);
+      }, outEstimate);
+
+      const minAmountOut = percentLess(0.01, scientificNotationToString(bigEstimate.toString()));
+
+      transactionsRef.push(nearWithdrawTransaction(minAmountOut));
+    }
+
+    return transactionsRef;
+  })
+  .compile();
+
+export const GET = app.handle;
+export const POST = app.handle;
