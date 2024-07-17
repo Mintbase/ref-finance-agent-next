@@ -7,15 +7,6 @@ Ref Finance Agent is a template for creating a Bitte.ai Plugin for facilitating 
 [![Demo](https://img.shields.io/badge/Demo-Visit%20Demo-brightgreen)](https://ref-finance-agent-next.vercel.app/)
 [![Deploy](https://img.shields.io/badge/Deploy-on%20Vercel-blue)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FMintbase%2Fref-finance-agent-next)
 
-## Demo
-https://github.com/Mintbase/ref-finance-agent-next/assets/838839/3291eaf9-aa79-4c95-8c5f-673a6d72dc96
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
-
 **Tooling:**
 
 [![Use Case](https://img.shields.io/badge/Use%20Case-AI-blue)](#)
@@ -48,9 +39,20 @@ Make LLM requests to the endpoints above. Refer to the full API documentation fo
 Set `NEAR_ENV="mainnet"` in your `.env.local` file.
 
 ```bash
+# install dependencies
 pnpm i
 
+# start the development server
 pnpm dev
 ```
 
-<img src="https://global.discourse-cdn.com/standard17/uploads/ref_finance/original/1X/64017832ba00463abe25fb22ff922d59a244792f.png" alt="detail_image" width="0" />
+## Demo
+https://github.com/Mintbase/ref-finance-agent-next/assets/838839/3291eaf9-aa79-4c95-8c5f-673a6d72dc96
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+<img src="https://global.discourse-cdn.com/standard17/uploads/ref_finance/original/1X/64017832ba00463abe25fb22ff922d59a244792f.png" alt="detail_image" />
