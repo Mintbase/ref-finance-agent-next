@@ -1,6 +1,6 @@
 # Ref Finance DeFi Swap Agent
 
-<img src="https://github.com/user-attachments/assets/aa54bac4-30ef-49bb-bac7-732ff561bd95" alt="cover_image"/>
+<img src="https://github.com/user-attachments/assets/aa54bac4-30ef-49bb-bac7-732ff561bd95" alt="cover_image" width="0"/>
 
 Ref Finance Agent is a template for creating a Bitte.ai Plugin for facilitating DeFi swaps using Ref Finance. Built using Next.js 14 + Elysia.
 
@@ -55,4 +55,4 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
 
-<img src="https://github.com/user-attachments/assets/1d23fa17-7965-4cf5-bb3f-d0ad2621d65a" alt="detail_image" />
+<img src="https://github.com/user-attachments/assets/1d23fa17-7965-4cf5-bb3f-d0ad2621d65a" alt="detail_image" width="0"/>
