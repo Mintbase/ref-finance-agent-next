@@ -28,7 +28,7 @@ export default function Home() {
         </li>
         <li>
           <a
-            href="https://github.com/Mintbase/ref-agent-test"
+            href="https://github.com/Mintbase/ref-finance-agent"
             target="_blank"
             rel="noreferrer"
           >

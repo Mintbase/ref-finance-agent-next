@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "https://ref-agent-test.vercel.app"
+      "url": "https://ref-finance-agent.vercel.app"
     }
   ],
   "x-mb": {
