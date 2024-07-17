@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 
 export default function Home() {
@@ -29,7 +28,7 @@ export default function Home() {
         </li>
         <li>
           <a
-            href="https://github.com/Mintbase/ref-finance-agent"
+            href="https://github.com/Mintbase/ref-agent-test"
             target="_blank"
             rel="noreferrer"
           >
