@@ -13,7 +13,7 @@
     "@ref-finance/ref-sdk": "^1.3.8",
     "big.js": "^6.2.1",
     "elysia": "^1.0.16",
-    "make-agent": "^0.0.7",
+    "make-agent": "^0.0.8",
     "next": "14.2.3",
     "react": "^18",
     "react-dom": "^18"
