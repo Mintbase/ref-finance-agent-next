@@ -14,8 +14,7 @@ Ref Finance Agent is a template for creating a Bitte.ai Plugin for facilitating 
 
 ## Project Walkthrough
 
-Ref Finance Agent facilitates the development of AI-powered DeFi swap agents. The template supports creating, managing, and deploying DeFi swap functionalities.
-[Build your own agent](https://docs.mintbase.xyz/ai/assistant-plugins)
+Ref Finance Agent facilitates the development of AI-powered DeFi swap agents. The template supports creating, managing, and deploying DeFi swap functionalities. [Build your own agent](https://docs.mintbase.xyz/ai/assistant-plugins)
 
 #### API Base URL
 
