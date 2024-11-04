@@ -15,8 +15,9 @@ export async function GET() {
   const pluginData = {
     openapi: "3.0.0",
     info: {
-      title: "RefFinance API",
-      description: "API for retrieving token metadata and swapping tokens through RefFinance.",
+      title: "Ref Finance API",
+      description:
+        "API for retrieving token metadata and swapping tokens through Ref Finance.",
       version: "1.0.0",
     },
     servers: [
@@ -27,29 +28,29 @@ export async function GET() {
     "x-mb": {
       "account-id": key.accountId || "",
       assistant: {
-        name: "RefFinance Agent",
-        description: "An assistant that provides token metadata and swaps tokens through RefFinance.",
-        instructions: "Get information for a given fungible token or swaps one token for another.",
-        "tools": [{ type: "generate-transaction" }]
+        name: "Ref Finance Agent",
+        description:
+          "An assistant that provides token metadata and swaps tokens through Ref Finance.",
+        instructions:
+          "Get information for a given fungible token or swaps one token for another. Do not modify token identifiers, they will be fuzzy matched automatically.",
+        tools: [{ type: "generate-transaction" }],
       },
     },
     paths: {
       "/api/{token}": {
         get: {
-          tags: ["token", "ft", "metadata"],
-          summary: "Get token metadata from RefFinance",
-          description: "This endpoint returns basic token metadata from RefFinance.",
           operationId: "get-token-metadata",
+          description:
+            "Get token metadata from Ref Finance. Token identifiers can be the name, symbol, or contractId and will be fuzzy matched automatically.",
           parameters: [
             {
               name: "token",
               in: "path",
-              description: "The symbol of the token to get metadata for.",
+              description: "The identifier for the token to get metadata for.",
               required: true,
               schema: {
                 type: "string",
               },
-              example: "USDT",
             },
           ],
           responses: {
@@ -100,41 +101,37 @@ export async function GET() {
       },
       "/api/swap/{tokenIn}/{tokenOut}/{quantity}": {
         get: {
-          tags: ["token", "swap", "ft"],
-          summary: "Swap fungible tokens through RefFinance",
-          description: "Swap an amount of a given fungible token for an amount of another fungible token that equals in value.",
-          operationId: "get-swap-tokens",
+          operationId: "get-swap-transactions",
+          description:
+            "Get a transaction payload for swapping between two tokens using the best trading route on Ref.Finance. Token identifiers can be the name, symbol, or contractId and will be fuzzy matched automatically.",
           parameters: [
             {
               name: "tokenIn",
               in: "path",
-              description: "The symbol of the token given to swap.",
+              description: "The identifier for the input token.",
               required: true,
               schema: {
                 type: "string",
               },
-              example: "USDT"
             },
             {
               name: "tokenOut",
               in: "path",
-              description: "The symbol of the wanted token to swap.",
+              description: "The identifier for the output token.",
               required: true,
               schema: {
                 type: "string",
               },
-              example: "NEAR"
             },
             {
               name: "quantity",
               in: "path",
-              description: "The amount of the given token to swap for the wanted token.",
+              description: "The amount of tokens to swap (input amount).",
               required: true,
               schema: {
                 type: "string",
               },
-              example: "150"
-            }
+            },
           ],
           responses: {
             "200": {
@@ -146,59 +143,65 @@ export async function GET() {
                     items: {
                       type: "object",
                       properties: {
-                        "receiverId": {
+                        signerId: {
                           type: "string",
-                          description: "The account ID of the contract that will receive the transaction."
+                          description:
+                            "The account ID that will sign the transaction",
                         },
-                        "functionCalls": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "methodName": {
-                                "type": "string",
-                                "description": "The name of the method to be called on the contract."
+                        receiverId: {
+                          type: "string",
+                          description:
+                            "The account ID of the contract that will receive the transaction",
+                        },
+                        actions: {
+                          type: "array",
+                          items: {
+                            type: "object",
+                            properties: {
+                              type: {
+                                type: "string",
+                                description: "The type of action to perform",
                               },
-                              "args": {
-                                "type": "object",
-                                "description": "Arguments for the function call.",
-                                "properties": {
-                                  "registration_only": {
-                                    "type": "boolean"
+                              params: {
+                                type: "object",
+                                properties: {
+                                  methodName: {
+                                    type: "string",
+                                    description:
+                                      "The name of the method to be called",
                                   },
-                                  "account_id": {
-                                    "type": "string"
+                                  args: {
+                                    type: "object",
+                                    description:
+                                      "Arguments for the function call",
                                   },
-                                  "receiver_id": {
-                                    "type": "string"
+                                  gas: {
+                                    type: "string",
+                                    description:
+                                      "Amount of gas to attach to the transaction",
                                   },
-                                  "amount": {
-                                    "type": "string"
+                                  deposit: {
+                                    type: "string",
+                                    description:
+                                      "Amount to deposit with the transaction",
                                   },
-                                  "msg": {
-                                    "type": "string",
-                                    "description": "A JSON string containing swap actions and parameters. Shows minimum amount of tokens to receive."
-                                  }
                                 },
-                                "additionalProperties": true
+                                required: [
+                                  "methodName",
+                                  "args",
+                                  "gas",
+                                  "deposit",
+                                ],
                               },
-                              "gas": {
-                                "type": "string",
-                                "description": "The amount of gas to attach to the transaction, in yoctoNEAR."
-                              },
-                              "amount": {
-                                "type": "string",
-                                "description": "The amount of NEAR tokens to attach to the transaction, in yoctoNEAR."
-                              }
                             },
-                            "required": ["methodName", "args", "gas", "amount"]
-                          }
-                        }
+                            required: ["type", "params"],
+                          },
+                        },
                       },
-                      "required": ["receiverId", "functionCalls"]
-                    }
-                  }
-                }
+                      required: ["signerId", "receiverId", "actions"],
+                    },
+                  },
+                },
               },
             },
             "400": {
@@ -210,6 +213,7 @@ export async function GET() {
                     properties: {
                       error: {
                         type: "string",
+                        description: "The error message",
                       },
                     },
                   },
@@ -218,7 +222,7 @@ export async function GET() {
             },
           },
         },
-      }
+      },
     },
   };
   return NextResponse.json(pluginData);
