@@ -1,5 +1,9 @@
-import Fuse, { IFuseOptions } from "fuse.js";
-import { allowlistedTokens, AllowlistedToken } from "@/utils/allowlist-tokens";
+import Fuse, { type IFuseOptions } from "fuse.js";
+
+import {
+  allowlistedTokens,
+  type AllowlistedToken,
+} from "@/utils/allowlist-tokens";
 
 // Create an array of tokens
 const tokens = Object.values(allowlistedTokens);
@@ -20,9 +24,7 @@ const options: IFuseOptions<AllowlistedToken> = {
 const fuse = new Fuse(tokens, options);
 
 export const searchToken = (query: string): AllowlistedToken[] => {
-  if (query.toLowerCase() === "near") {
-    query = "wrap.near"; // Special case for NEAR
-  }
+  if (query.toLowerCase() === "near") return [allowlistedTokens["wrap.near"]];
   // Search the tokens with the query
   const result = fuse.search(query);
 
