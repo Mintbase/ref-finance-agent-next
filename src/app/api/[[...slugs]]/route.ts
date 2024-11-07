@@ -1,23 +1,19 @@
 import { swagger } from "@elysiajs/swagger";
 import {
-  type EstimateSwapView,
-  type Transaction,
-  type TransformedTransaction,
   WRAP_NEAR_CONTRACT_ID,
   estimateSwap,
   fetchAllPools,
   ftGetTokenMetadata,
-  getExpectedOutputFromSwapTodos,
   getStablePools,
   instantSwap,
   nearDepositTransaction,
   nearWithdrawTransaction,
-  percentLess,
-  scientificNotationToString,
-  separateRoutes,
+  toReadableNumber,
   transformTransactions,
+  type EstimateSwapView,
+  type Transaction,
+  type TransformedTransaction,
 } from "@ref-finance/ref-sdk";
-import Big from "big.js";
 import { Elysia } from "elysia";
 
 import { searchToken } from "@/utils/search-token";
@@ -59,6 +55,9 @@ const app = new Elysia({ prefix: "/api", aot: false })
 
       const stablePoolsDetail = await getStablePools(stablePools);
 
+      const isNearIn = tokenIn.toLowerCase() === "near";
+      const isNearOut = tokenOut.toLowerCase() === "near";
+
       const tokenInMatch = searchToken(tokenIn)[0];
       const tokenOutMatch = searchToken(tokenOut)[0];
 
@@ -73,13 +72,21 @@ const app = new Elysia({ prefix: "/api", aot: false })
         ftGetTokenMetadata(tokenOutMatch.id),
       ]);
 
-      if (tokenInData.id === tokenOutData.id) {
-        if (tokenInData.id === WRAP_NEAR_CONTRACT_ID) {
-          return {
-            error:
-              "This endpoint does not support wrapping / unwrap NEAR directly",
-          };
-        }
+      if (tokenInData.id === WRAP_NEAR_CONTRACT_ID && isNearOut) {
+        return transformTransactions(
+          [nearWithdrawTransaction(quantity)],
+          accountId
+        );
+      }
+
+      if (isNearIn && tokenOutData.id === WRAP_NEAR_CONTRACT_ID) {
+        return transformTransactions(
+          [nearDepositTransaction(quantity)],
+          accountId
+        );
+      }
+
+      if (tokenInData.id === tokenOutData.id && isNearIn === isNearOut) {
         return { error: "TokenIn and TokenOut cannot be the same" };
       }
 
@@ -96,7 +103,6 @@ const app = new Elysia({ prefix: "/api", aot: false })
           },
         });
       };
-
       const swapTodos: EstimateSwapView[] = await refEstimateSwap(true).catch(
         () => {
           return refEstimateSwap(false); // fallback to non-smart routing if unsupported
@@ -108,34 +114,36 @@ const app = new Elysia({ prefix: "/api", aot: false })
         tokenOut: tokenOutData,
         amountIn: quantity,
         swapTodos,
-        slippageTolerance: 0.1,
+        slippageTolerance: 0.05,
         AccountId: accountId,
         referralId: "mintbase.near",
       });
 
-      if (tokenInData.id === WRAP_NEAR_CONTRACT_ID) {
+      if (isNearIn) {
+        // wrap near
         transactionsRef.splice(-1, 0, nearDepositTransaction(quantity));
       }
 
-      if (tokenOutData.id === WRAP_NEAR_CONTRACT_ID) {
-        const outEstimate = getExpectedOutputFromSwapTodos(
-          swapTodos,
-          tokenOutData.id
+      if (isNearOut) {
+        // unwrap near
+        const lastFunctionCall = transactionsRef[transactionsRef.length - 1]
+          .functionCalls[0] as {
+          args: {
+            msg: string;
+          };
+        };
+        const parsedActions = JSON.parse(lastFunctionCall.args.msg);
+        const lastAction =
+          parsedActions.actions[parsedActions.actions.length - 1];
+        const amountOut = lastAction.min_amount_out;
+
+        const formattedAmountOut = toReadableNumber(
+          tokenOutData.decimals,
+          amountOut
         );
 
-        const routes = separateRoutes(swapTodos, tokenOutData.id);
-
-        const bigEstimate = routes.reduce((acc, cur) => {
-          const curEstimate = Big(cur[cur.length - 1].estimate);
-          return acc.add(curEstimate);
-        }, outEstimate);
-
-        const minAmountOut = percentLess(
-          0.01,
-          scientificNotationToString(bigEstimate.toString())
-        );
-
-        transactionsRef.push(nearWithdrawTransaction(minAmountOut));
+        const nearWithdrawTx = nearWithdrawTransaction(formattedAmountOut);
+        transactionsRef.push(nearWithdrawTx);
       }
 
       return transformTransactions(transactionsRef, accountId);
