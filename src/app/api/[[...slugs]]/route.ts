@@ -8,7 +8,6 @@ import {
   instantSwap,
   nearDepositTransaction,
   nearWithdrawTransaction,
-  toReadableNumber,
   transformTransactions,
   type EstimateSwapView,
   type Transaction,
@@ -128,22 +127,13 @@ const app = new Elysia({ prefix: "/api", aot: false })
         // unwrap near
         const lastFunctionCall = transactionsRef[transactionsRef.length - 1]
           .functionCalls[0] as {
-          args: {
-            msg: string;
+            args: {
+              msg: string;
+            };
           };
-        };
         const parsedActions = JSON.parse(lastFunctionCall.args.msg);
-        const lastAction =
-          parsedActions.actions[parsedActions.actions.length - 1];
-        const amountOut = lastAction.min_amount_out;
-
-        const formattedAmountOut = toReadableNumber(
-          tokenOutData.decimals,
-          amountOut
-        );
-
-        const nearWithdrawTx = nearWithdrawTransaction(formattedAmountOut);
-        transactionsRef.push(nearWithdrawTx);
+        parsedActions['skip_unwrap_near'] = false;
+        lastFunctionCall.args.msg = JSON.stringify(parsedActions);
       }
 
       return transformTransactions(transactionsRef, accountId);
