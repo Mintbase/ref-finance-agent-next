@@ -17,6 +17,9 @@ import { Elysia } from "elysia";
 
 import { searchToken } from "@/utils/search-token";
 
+export const maxDuration = 30;
+export const dynamic = "force-dynamic";
+
 const app = new Elysia({ prefix: "/api", aot: false })
   .use(swagger())
   .get("/:token", async ({ params: { token } }) => {
@@ -127,12 +130,12 @@ const app = new Elysia({ prefix: "/api", aot: false })
         // unwrap near
         const lastFunctionCall = transactionsRef[transactionsRef.length - 1]
           .functionCalls[0] as {
-            args: {
-              msg: string;
-            };
+          args: {
+            msg: string;
           };
+        };
         const parsedActions = JSON.parse(lastFunctionCall.args.msg);
-        parsedActions['skip_unwrap_near'] = false;
+        parsedActions["skip_unwrap_near"] = false;
         lastFunctionCall.args.msg = JSON.stringify(parsedActions);
       }
 
