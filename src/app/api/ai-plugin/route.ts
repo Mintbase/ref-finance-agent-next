@@ -1,15 +1,8 @@
 import { NextResponse } from "next/server";
 import { DEPLOYMENT_URL } from "vercel-url";
 
-const key = JSON.parse(process.env.BITTE_KEY || "{}");
-const config = JSON.parse(process.env.BITTE_CONFIG || "{}");
-
-if (!key?.accountId) {
-  console.warn("Missing account info.");
-}
-if (!config || !config.url) {
-  console.warn("Missing config or url in config.");
-}
+// Replace with your near accountId or evm address
+const accountId = process.env.ACCOUNT_ID;
 
 export async function GET() {
   const pluginData = {
@@ -22,11 +15,13 @@ export async function GET() {
     },
     servers: [
       {
-        url: config?.url || DEPLOYMENT_URL,
+        // For production deployment, replace with production url. Automatically set by vercel-url if using Vercel system env vars.
+        // See: https://vercel.com/docs/projects/environment-variables/system-environment-variables#system-environment-variables
+        url: DEPLOYMENT_URL,
       },
     ],
     "x-mb": {
-      "account-id": key.accountId || "",
+      "account-id": accountId,
       assistant: {
         name: "Ref Finance Agent",
         description:

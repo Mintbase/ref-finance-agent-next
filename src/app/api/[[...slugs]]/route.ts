@@ -10,6 +10,7 @@ import {
   nearWithdrawTransaction,
   transformTransactions,
   type EstimateSwapView,
+  type Pool,
   type Transaction,
   type TransformedTransaction,
 } from "@ref-finance/ref-sdk";
@@ -53,9 +54,16 @@ const app = new Elysia({ prefix: "/api", aot: false })
 
       const { ratedPools, unRatedPools, simplePools } = await fetchAllPools();
 
-      const stablePools = unRatedPools.concat(ratedPools);
+      const stablePools: Pool[] = unRatedPools.concat(ratedPools);
 
-      const stablePoolsDetail = await getStablePools(stablePools);
+      // remove low liquidity DEGEN_SWAP pools
+      const nonDegenStablePools = stablePools.filter(
+        (pool) => pool.pool_kind !== "DEGEN_SWAP"
+      );
+
+      const nonDegenStablePoolsDetails = await getStablePools(
+        nonDegenStablePools
+      );
 
       const isNearIn = tokenIn.toLowerCase() === "near";
       const isNearOut = tokenOut.toLowerCase() === "near";
@@ -100,11 +108,12 @@ const app = new Elysia({ prefix: "/api", aot: false })
           simplePools,
           options: {
             enableSmartRouting,
-            stablePools,
-            stablePoolsDetail,
+            stablePools: nonDegenStablePools,
+            stablePoolsDetail: nonDegenStablePoolsDetails,
           },
         });
       };
+
       const swapTodos: EstimateSwapView[] = await refEstimateSwap(true).catch(
         () => {
           return refEstimateSwap(false); // fallback to non-smart routing if unsupported
@@ -116,7 +125,7 @@ const app = new Elysia({ prefix: "/api", aot: false })
         tokenOut: tokenOutData,
         amountIn: quantity,
         swapTodos,
-        slippageTolerance: 0.05,
+        slippageTolerance: 0.2, // 20% slippage tolerance
         AccountId: accountId,
         referralId: "mintbase.near",
       });
