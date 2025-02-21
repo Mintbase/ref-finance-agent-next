@@ -125,7 +125,7 @@ const app = new Elysia({ prefix: "/api", aot: false })
         tokenOut: tokenOutData,
         amountIn: quantity,
         swapTodos,
-        slippageTolerance: 0.1, // 1% slippage tolerance
+        slippageTolerance: 0.2, // 20% slippage tolerance
         AccountId: accountId,
         referralId: "mintbase.near",
       });
