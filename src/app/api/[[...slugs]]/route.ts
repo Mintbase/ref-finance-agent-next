@@ -18,7 +18,7 @@ import { Elysia } from "elysia";
 
 import { searchToken } from "@/utils/search-token";
 
-export const maxDuration = 30;
+export const maxDuration = 60;
 export const dynamic = "force-dynamic";
 
 const app = new Elysia({ prefix: "/api", aot: false })
