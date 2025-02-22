@@ -11,15 +11,17 @@ import {
   transformTransactions,
   type EstimateSwapView,
   type Pool,
-  type Transaction,
   type TransformedTransaction,
 } from "@ref-finance/ref-sdk";
 import { Elysia } from "elysia";
 
 import { searchToken } from "@/utils/search-token";
+import { getSlippageTolerance } from "@/utils/slippage";
 
 export const maxDuration = 60;
 export const dynamic = "force-dynamic";
+
+const REFERRAL_ID = "bitte.near";
 
 const app = new Elysia({ prefix: "/api", aot: false })
   .use(swagger())
@@ -46,6 +48,7 @@ const app = new Elysia({ prefix: "/api", aot: false })
     "/swap/:tokenIn/:tokenOut/:quantity",
     async ({
       params: { tokenIn, tokenOut, quantity },
+      query: { slippage },
       headers,
     }): Promise<TransformedTransaction[] | { error: string }> => {
       const mbMetadata: { accountId: string } | undefined =
@@ -120,35 +123,42 @@ const app = new Elysia({ prefix: "/api", aot: false })
         }
       );
 
-      const transactionsRef: Transaction[] = await instantSwap({
+      const slippageTolerance = getSlippageTolerance(slippage);
+
+      const refSwapTransactions = await instantSwap({
         tokenIn: tokenInData,
         tokenOut: tokenOutData,
         amountIn: quantity,
         swapTodos,
-        slippageTolerance: 2, // 2% slippage tolerance
+        slippageTolerance,
         AccountId: accountId,
-        referralId: "mintbase.near",
+        referralId: REFERRAL_ID,
       });
 
       if (isNearIn) {
         // wrap near
-        transactionsRef.splice(-1, 0, nearDepositTransaction(quantity));
+        refSwapTransactions.unshift(nearDepositTransaction(quantity));
       }
 
       if (isNearOut) {
-        // unwrap near
-        const lastFunctionCall = transactionsRef[transactionsRef.length - 1]
-          .functionCalls[0] as {
-          args: {
-            msg: string;
-          };
-        };
-        const parsedActions = JSON.parse(lastFunctionCall.args.msg);
-        parsedActions["skip_unwrap_near"] = false;
-        lastFunctionCall.args.msg = JSON.stringify(parsedActions);
-      }
+        const lastFunctionCall = refSwapTransactions
+          .at(-1)
+          ?.functionCalls.at(-1);
 
-      return transformTransactions(transactionsRef, accountId);
+        const args = lastFunctionCall?.args;
+
+        if (args && "msg" in args && typeof args.msg === "string") {
+          const argsMsgObj = JSON.parse(args.msg);
+
+          argsMsgObj.skip_unwrap_near = false;
+
+          lastFunctionCall.args = {
+            ...lastFunctionCall.args,
+            msg: JSON.stringify(argsMsgObj),
+          };
+        }
+      }
+      return transformTransactions(refSwapTransactions, accountId);
     }
   )
   .compile();

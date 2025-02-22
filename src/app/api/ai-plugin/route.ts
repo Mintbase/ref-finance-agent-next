@@ -1,9 +1,6 @@
 import { NextResponse } from "next/server";
 import { DEPLOYMENT_URL } from "vercel-url";
 
-// Replace with your near accountId or evm address
-const accountId = process.env.ACCOUNT_ID;
-
 export async function GET() {
   const pluginData = {
     openapi: "3.0.0",
@@ -15,13 +12,13 @@ export async function GET() {
     },
     servers: [
       {
-        // For production deployment, replace with production url. Automatically set by vercel-url if using Vercel system env vars.
+        // Set by vercel-url if using Vercel system env vars.  Override for non-Vercel deployments or during local dev tunneling
         // See: https://vercel.com/docs/projects/environment-variables/system-environment-variables#system-environment-variables
-        url: DEPLOYMENT_URL,
+        url: "https://markeljan.a.pinggy.link" //DEPLOYMENT_URL,
       },
     ],
     "x-mb": {
-      "account-id": accountId,
+      "account-id": process.env.ACCOUNT_ID,
       assistant: {
         name: "Ref Finance Agent",
         description:
@@ -98,7 +95,7 @@ export async function GET() {
         get: {
           operationId: "get-swap-transactions",
           description:
-            "Get a transaction payload for swapping between two tokens using the best trading route on Ref.Finance. Token identifiers can be the name, symbol, or contractId and will be fuzzy matched automatically.",
+            "Get a transaction payload for swapping between two tokens using the best trading route on Ref.Finance. Token identifiers can be the name, symbol, or contractId and will be fuzzy matched automatically. Default slippage is 2 (2%).",
           parameters: [
             {
               name: "tokenIn",
@@ -125,6 +122,16 @@ export async function GET() {
               required: true,
               schema: {
                 type: "string",
+              },
+            },
+            {
+              name: "slippage",
+              in: "query",
+              description: "The maximum slippage tolerance in percentage.  Default is 2 (2%).",
+              required: false,
+              schema: {
+                type: "number",
+                format: "float",
               },
             },
           ],
