@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { DEPLOYMENT_URL } from "vercel-url";
 
 export async function GET() {
   const pluginData = {
@@ -13,7 +14,7 @@ export async function GET() {
       {
         // Set by vercel-url if using Vercel system env vars.  Override for non-Vercel deployments or during local dev tunneling
         // See: https://vercel.com/docs/projects/environment-variables/system-environment-variables#system-environment-variables
-        url: "https://markeljan.a.pinggy.link" //DEPLOYMENT_URL,
+        url: DEPLOYMENT_URL,
       },
     ],
     "x-mb": {
