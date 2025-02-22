@@ -5,21 +5,23 @@ import {
   fetchAllPools,
   ftGetTokenMetadata,
   getStablePools,
-  instantSwap,
   nearDepositTransaction,
   nearWithdrawTransaction,
   transformTransactions,
   type EstimateSwapView,
   type Pool,
-  type Transaction,
-  type TransformedTransaction,
+  type TransformedTransaction
 } from "@ref-finance/ref-sdk";
 import { Elysia } from "elysia";
 
+import { getBestSwapTransactions } from "@/app/lib/best-swap-finder";
 import { searchToken } from "@/utils/search-token";
+import { getSlippageTolerance } from "@/utils/slippage";
 
 export const maxDuration = 60;
 export const dynamic = "force-dynamic";
+
+const REFERRAL_ID = "bitte.near";
 
 const app = new Elysia({ prefix: "/api", aot: false })
   .use(swagger())
@@ -46,6 +48,9 @@ const app = new Elysia({ prefix: "/api", aot: false })
     "/swap/:tokenIn/:tokenOut/:quantity",
     async ({
       params: { tokenIn, tokenOut, quantity },
+      query: {
+        slippage
+      },
       headers,
     }): Promise<TransformedTransaction[] | { error: string }> => {
       const mbMetadata: { accountId: string } | undefined =
@@ -120,35 +125,56 @@ const app = new Elysia({ prefix: "/api", aot: false })
         }
       );
 
-      const transactionsRef: Transaction[] = await instantSwap({
+      const slippageTolerance = getSlippageTolerance(slippage);
+
+      const refSwapTransactions = await getBestSwapTransactions({
+        swapTodos,
         tokenIn: tokenInData,
         tokenOut: tokenOutData,
         amountIn: quantity,
-        swapTodos,
-        slippageTolerance: 0.2, // 20% slippage tolerance
+        slippageTolerance,
         AccountId: accountId,
-        referralId: "mintbase.near",
-      });
+        referralId: REFERRAL_ID,
+      })
 
+
+      // add wrap near transaction
       if (isNearIn) {
-        // wrap near
-        transactionsRef.splice(-1, 0, nearDepositTransaction(quantity));
+        refSwapTransactions.unshift(nearDepositTransaction(quantity));
       }
 
-      if (isNearOut) {
-        // unwrap near
-        const lastFunctionCall = transactionsRef[transactionsRef.length - 1]
-          .functionCalls[0] as {
-          args: {
-            msg: string;
-          };
+      const lastTransaction = refSwapTransactions.at(-1);
+      const lastFunctionCall = lastTransaction?.functionCalls.at(-1);
+
+      if (lastFunctionCall?.args &&
+        typeof lastFunctionCall.args === 'object' &&
+        'msg' in lastFunctionCall.args &&
+        typeof lastFunctionCall.args.msg === 'string') {
+
+        const lastFunctionCallMsgObj = JSON.parse(lastFunctionCall.args.msg);
+
+        const isDclSwap = "Swap" in lastFunctionCallMsgObj;
+
+        if (isDclSwap) {
+          lastFunctionCallMsgObj.Swap.client_id = REFERRAL_ID;
+          // Set skip_unwrap_near for wrap.near output (dclSwaps unwrap by default)
+          if (tokenOutData.id === WRAP_NEAR_CONTRACT_ID && !isNearOut) {
+            lastFunctionCallMsgObj.Swap.skip_unwrap_near = true;
+          }
+
+          // Set skip_unwrap_near for non-dcl swaps with near out
+        } else if (isNearOut) {
+          lastFunctionCallMsgObj.skip_unwrap_near = false;
+        }
+
+
+        lastFunctionCall.args = {
+          ...lastFunctionCall.args,
+          msg: JSON.stringify(lastFunctionCallMsgObj)
         };
-        const parsedActions = JSON.parse(lastFunctionCall.args.msg);
-        parsedActions["skip_unwrap_near"] = false;
-        lastFunctionCall.args.msg = JSON.stringify(parsedActions);
       }
 
-      return transformTransactions(transactionsRef, accountId);
+      return transformTransactions(refSwapTransactions, accountId);
     }
   )
   .compile();
