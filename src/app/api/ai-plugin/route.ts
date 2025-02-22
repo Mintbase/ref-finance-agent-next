@@ -14,7 +14,7 @@ export async function GET() {
       {
         // Set by vercel-url if using Vercel system env vars.  Override for non-Vercel deployments or during local dev tunneling
         // See: https://vercel.com/docs/projects/environment-variables/system-environment-variables#system-environment-variables
-        url: "https://markeljan.a.pinggy.link" //DEPLOYMENT_URL,
+        url: DEPLOYMENT_URL,
       },
     ],
     "x-mb": {
@@ -127,7 +127,8 @@ export async function GET() {
             {
               name: "slippage",
               in: "query",
-              description: "The maximum slippage tolerance in percentage.  Default is 2 (2%).",
+              description:
+                "The maximum slippage tolerance in percentage.  Default is 2 (2%).",
               required: false,
               schema: {
                 type: "number",
