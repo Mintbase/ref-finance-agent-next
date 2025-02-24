@@ -14,7 +14,7 @@ Ref Finance Agent is a template for creating a Bitte.ai Plugin for facilitating 
 
 ## Project Walkthrough
 
-Ref Finance Agent facilitates the development of AI-powered DeFi swap agents. The template supports creating, managing, and deploying DeFi swap functionalities. [Build your own agent](https://docs.mintbase.xyz/ai/assistant-plugins)
+Ref Finance Agent facilitates the development of AI-powered DeFi swap agents. The template supports creating, managing, and deploying DeFi swap functionalities. [Build your own agent](https://docs.bitte.ai/agents)
 
 #### API Base URL
 
@@ -27,15 +27,24 @@ https://ref-finance-agent.vercel.app
 - Swap Transactions `GET` `/api/swap/{tokenIn}/{tokenOut}/{quantity}`
 
 #### Usage
+
 Make LLM requests to the endpoints above. Refer to the full API documentation for detailed parameter and response information.
 
-
 ## Getting Started
-[Docs to integrate](https://docs.mintbase.xyz/ai/assistant-plugins)  
+
+[Docs to integrate](https://docs.bitte.ai/agents/quick-start)
 
 ### Installation
 
-Set `NEAR_ENV="mainnet"` in your `.env.local` file.
+Copy `.env.example` to `.env` and set the required environment variables.
+
+```bash
+cp .env.example .env
+```
+
+Get BITTE_API_KEY at [key.bitte.ai](https://key.bitte.ai).
+
+Install dependencies and start development.
 
 ```bash
 # install dependencies
@@ -43,9 +52,45 @@ pnpm i
 
 # start the development server
 pnpm dev
+
+# test the agent using make-agent
+pnpm make-agent dev
+
+# host the agent on a https url i.e. https://ref-finance-agent.vercel.app
+
+# Add to Bitte Registry using make-agent deploy
+pnpm make-agent deploy -u <your-agent-url>
+
+# test the agent using the Bitte Playground (agent-id is url without http or https i.e. ref-finance-agent.vercel.app)
+https://wallet.bitte.ai/smart-actions?mode=debug&agentId=<agent-id>
+
+```
+
+## Local Development Using Tunneling
+
+1. Run dev server `pnpm run dev`
+2. Activate tunneling service (ngrok, localtunnel, serveo, pinggy, etc.)
+3. Deploy a temporary agent `pnpm make-agent deploy -u <tunnel-url>` (agents with tunnel urls are only temporary)
+4. Test the agent using the Bitte Playground https://wallet.bitte.ai/smart-actions?mode=debug&agentId=<agent-id>
+
+### Example
+
+```bash
+# Run dev server
+pnpm run dev
+
+# Activate tunneling service
+ngrok http 3000
+
+# Deploy a temporary agent
+pnpm make-agent deploy -u https://example-agent.ngrok.app
+
+# Test the agent on the Bitte Wallet Playground
+https://wallet.bitte.ai/smart-actions?mode=debug&agentId=example-agent.ngrok.app
 ```
 
 ## Demo
+
 https://github.com/Mintbase/ref-finance-agent-next/assets/838839/3291eaf9-aa79-4c95-8c5f-673a6d72dc96
 
 ## Deploy on Vercel
@@ -55,5 +100,3 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
 
 <img src="https://i.imgur.com/fgFX6BS.png" alt="detail_image" width="0"/>
-
-
